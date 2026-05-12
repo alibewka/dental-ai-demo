@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-ассистент для стоматологии · Записывает клиентов 24/7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F5F0;
+    --bg-card: #FFFFFF;
+    --ink: #0A1F2E;
+    --ink-soft: #2C3E50;
+    --ink-mute: #6B7B8C;
+    --accent: #FF5C3D;
+    --accent-soft: #FFEDE8;
+    --teal: #0E5E5E;
+    --teal-soft: #E0EEED;
+    --line: #E5E0D5;
+    --wa-bg: #ECE5DD;
+    --wa-out: #DCF8C6;
+    --wa-in: #FFFFFF;
+    --wa-green: #075E54;
+    --wa-tick: #34B7F1;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Manrope', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+  /* Texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255, 92, 61, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(14, 94, 94, 0.05) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 32px;
+    position: relative;
+    z-index: 1;
+  }
+  /* === NAV === */
+  nav {
+    padding: 28px 0;
+    border-bottom: 1px solid var(--line);
+    backdrop-filter: blur(10px);
+    background: rgba(247, 245, 240, 0.85);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-inner { display: flex; justify-content: space-between; align-items: center; }
+  .logo {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-dot {
+    width: 10px;
+    height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px var(--accent-soft);
+  }
+  .nav-cta {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 12px 22px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: transform 0.2s;
+  }
+  .nav-cta:hover { transform: translateY(-1px); }
+  /* === HERO === */
+  .hero { padding: 90px 0 70px; position: relative; }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--teal-soft);
+    color: var(--teal);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 28px;
+    letter-spacing: 0.01em;
+  }
+  .pulse {
+    width: 8px; height: 8px;
+    background: var(--teal);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.3); }
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(44px, 6vw, 76px);
+    line-height: 1;
+    letter-spacing: -0.035em;
+    margin-bottom: 28px;
+  }
+  h1 em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+    position: relative;
+  }
+  h1 em::after {
+    content: '';
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: var(--accent-soft);
+    z-index: -1;
+  }
+  .hero-sub {
+    font-size: 20px;
+    color: var(--ink-soft);
+    max-width: 640px;
+    margin-bottom: 40px;
+    line-height: 1.5;
+  }
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    margin-top: 56px;
+    border-top: 1px solid var(--line);
+    padding-top: 32px;
+  }
+  .stat {
+    padding-right: 32px;
+    border-right: 1px solid var(--line);
+  }
+  .stat:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'Fraunces', serif;
+    font-size: 48px;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stat-num .small { font-size: 24px; color: var(--ink-mute); }
+  .stat-label {
+    font-size: 13px;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  /* === SECTION === */
+  section { padding: 90px 0; position: relative; }
+  .section-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(34px, 4vw, 52px);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+    max-width: 720px;
+  }
+  h2 em { font-style: italic; color: var(--accent); font-weight: 400; }
+  .section-lead {
+    font-size: 18px;
+    color: var(--ink-soft);
+    max-width: 640px;
+    margin-bottom: 56px;
+    line-height: 1.6;
+  }
+  /* === PROBLEM === */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .problem-card {
+    background: var(--bg-card);
+    padding: 36px;
+    position: relative;
+  }
+  .problem-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-mute);
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+  }
+  .problem-card h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 1.2;
+    margin-bottom: 14px;
+    letter-spacing: -0.02em;
+  }
+  .problem-card p {
+    color: var(--ink-mute);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .problem-loss {
+    margin-top: 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .total-loss {
+    margin-top: 48px;
+    padding: 36px 40px;
+    background: var(--ink);
+    color: var(--bg);
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .total-loss-label {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(247, 245, 240, 0.6);
+    margin-bottom: 8px;
+  }
+  .total-loss-num {
+    font-family: 'Fraunces', serif;
+    font-size: 56px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-weight: 500;
+  }
+  .total-loss-num em { color: var(--accent); font-style: italic; font-weight: 400; }
+  .total-loss-note {
+    font-size: 14px;
+    color: rgba(247, 245, 240, 0.6);
+    max-width: 280px;
+    text-align: right;
+  }
+  /* === DEMO === */
+  .demo-section {
+    background: linear-gradient(180deg, var(--bg) 0%, #EFEBE0 100%);
+    padding: 100px 0;
+  }
+  .demo-wrap {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 60px;
+    align-items: center;
+  }
+  .demo-info h2 { margin-bottom: 28px; }
+  .demo-features {
+    list-style: none;
+    margin-top: 32px;
+  }
+  .demo-features li {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .demo-features li:last-child { border-bottom: none; }
+  .demo-features .check {
+    width: 24px;
+    height: 24px;
+    background: var(--teal-soft);
+    color: var(--teal);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+  .demo-features .feat-text { font-size: 15px; line-height: 1.5; color: var(--ink-soft); }
+  .demo-features .feat-text strong { color: var(--ink); font-weight: 700; }
+  .demo-cta-line {
+    margin-top: 28px;
+    padding: 18px 22px;
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+    font-size: 15px;
+    color: var(--ink-soft);
+  }
+  .demo-cta-line strong { color: var(--accent); }
+  /* WhatsApp phone */
+  .phone {
+    background: #1a1a1a;
+    border-radius: 42px;
+    padding: 14px;
+    box-shadow:
+      0 30px 80px rgba(10, 31, 46, 0.25),
+      0 10px 30px rgba(10, 31, 46, 0.12);
+    position: relative;
+  }
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 22px;
+    background: #1a1a1a;
+    border-radius: 0 0 18px 18px;
+    z-index: 10;
+  }
+  .phone-screen {
+    background: var(--wa-bg);
+    border-radius: 30px;
+    overflow: hidden;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .wa-header {
+    background: var(--wa-green);
+    color: white;
+    padding: 50px 16px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .wa-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #ff8060);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .wa-name { font-size: 15px; font-weight: 600; line-height: 1.2; }
+  .wa-status { font-size: 11px; opacity: 0.85; }
+  .wa-chat {
+    flex: 1;
+    padding: 16px 12px;
+    overflow-y: auto;
+    background-image:
+      repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(0,0,0,0.012) 35px, rgba(0,0,0,0.012) 36px);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .wa-chat::-webkit-scrollbar { width: 0; }
+  .msg {
+    max-width: 80%;
+    padding: 7px 10px 18px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    line-height: 1.35;
+    position: relative;
+    word-wrap: break-word;
+    opacity: 0;
+    transform: translateY(8px);
+    animation: msgIn 0.3s forwards;
+    box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
+  }
+  @keyframes msgIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .msg.out {
+    background: var(--wa-out);
+    align-self: flex-end;
+    border-top-right-radius: 0;
+  }
+  .msg.in {
+    background: var(--wa-in);
+    align-self: flex-start;
+    border-top-left-radius: 0;
+  }
+  .msg-time {
+    position: absolute;
+    bottom: 3px;
+    right: 8px;
+    font-size: 10px;
+    color: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .msg-tick { color: var(--wa-tick); font-size: 11px; }
+  .typing {
+    align-self: flex-start;
+    background: var(--wa-in);
+    padding: 12px 14px;
+    border-radius: 8px;
+    border-top-left-radius: 0;
+    display: flex;
+    gap: 4px;
+    box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
+  }
+  .typing span {
+    width: 6px; height: 6px;
+    background: var(--ink-mute);
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-4px); opacity: 1; }
+  }
+  .demo-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+    justify-content: center;
+  }
+  .demo-btn {
+    background: white;
+    border: 1px solid var(--line);
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .demo-btn:hover {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+  }
+  .demo-btn.primary {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  .demo-btn.primary:hover { background: var(--ink); border-color: var(--ink); }
+  .booking-banner {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    border: 1px solid #28a745;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 8px;
+    font-size: 12.5px;
+    align-self: stretch;
+    display: none;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: all 0.4s;
+  }
+  .booking-banner.show {
+    display: block;
+    opacity: 1;
+    transform: scale(1);
+  }
+  .booking-banner-title {
+    font-weight: 700;
+    color: #155724;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .booking-banner-line {
+    color: #155724;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  /* === FEATURES === */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 48px;
+  }
+  .feature {
+    background: var(--bg-card);
+    padding: 36px 30px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    position: relative;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .feature:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(10, 31, 46, 0.08);
+  }
+  .feature-num {
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    color: var(--ink-mute);
+    margin-bottom: 18px;
+    font-style: italic;
+  }
+  .feature h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 22px;
+    line-height: 1.2;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .feature p {
+    color: var(--ink-mute);
+    font-size: 14.5px;
+    line-height: 1.6;
+  }
+  .feature-metric {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--teal);
+    font-weight: 600;
+  }
+  /* === CALCULATOR === */
+  .calc-section {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 100px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .calc-section::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+    opacity: 0.15;
+    pointer-events: none;
+  }
+  .calc-section h2 { color: var(--bg); }
+  .calc-section h2 em { color: var(--accent); }
+  .calc-section .section-tag { color: var(--accent); }
+  .calc-section .section-lead { color: rgba(247, 245, 240, 0.7); }
+  .calc-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    margin-top: 56px;
+    align-items: start;
+  }
+  .calc-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+  .calc-input label {
+    display: block;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(247, 245, 240, 0.6);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .calc-input .value {
+    font-family: 'Fraunces', serif;
+    font-size: 36px;
+    font-weight: 500;
+    color: var(--bg);
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+  }
+  .calc-input .value .unit { font-size: 18px; color: var(--ink-mute); margin-left: 6px; }
+  .calc-slider {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: rgba(247, 245, 240, 0.15);
+    border-radius: 4px;
+    outline: none;
+  }
+  .calc-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 0 4px rgba(255, 92, 61, 0.2);
+    transition: box-shadow 0.2s;
+  }
+  .calc-slider::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 0 8px rgba(255, 92, 61, 0.3);
+  }
+  .calc-slider::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+  }
+  .calc-result {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 36px;
+    backdrop-filter: blur(10px);
+  }
+  .calc-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 15px;
+  }
+  .calc-line:last-of-type { border-bottom: none; }
+  .calc-line span:first-child { color: rgba(247, 245, 240, 0.7); }
+  .calc-line span:last-child {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--bg);
+    font-weight: 500;
+  }
+  .calc-line.loss span:last-child { color: var(--accent); }
+  .calc-savings {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 2px solid var(--accent);
+  }
+  .calc-savings-label {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(247, 245, 240, 0.6);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .calc-savings-value {
+    font-family: 'Fraunces', serif;
+    font-size: 52px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .calc-savings-period { font-size: 16px; color: rgba(247, 245, 240, 0.6); }
+  /* === PRICING === */
+  .pricing-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 56px 48px;
+    position: relative;
+    overflow: hidden;
+    margin-top: 48px;
+  }
+  .pricing-card::before {
+    content: 'ПИЛОТ';
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    background: var(--accent);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  .pricing-card h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 36px;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    letter-spacing: -0.025em;
+  }
+  .pricing-desc {
+    color: var(--ink-mute);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+  .pricing-includes {
+    list-style: none;
+  }
+  .pricing-includes li {
+    padding: 10px 0;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .pricing-includes li::before {
+    content: '→';
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .pricing-price-block {
+    text-align: right;
+  }
+  .pricing-price {
+    font-family: 'Fraunces', serif;
+    font-size: 72px;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .pricing-price-unit { font-size: 28px; color: var(--ink-mute); }
+  .pricing-meta {
+    font-size: 14px;
+    color: var(--ink-mute);
+    margin-bottom: 32px;
+  }
+  .pricing-guarantee {
+    background: var(--teal-soft);
+    color: var(--teal);
+    padding: 14px 18px;
+    border-radius: 4px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    text-align: left;
+    margin-bottom: 24px;
+  }
+  .pricing-guarantee strong { display: block; margin-bottom: 4px; }
+  .pricing-cta {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--bg);
+    padding: 18px 36px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: transform 0.2s;
+  }
+  .pricing-cta:hover { transform: translateY(-2px); }
+  /* === FAQ === */
+  .faq-section { padding-bottom: 100px; }
+  .faq-item {
+    border-top: 1px solid var(--line);
+    padding: 24px 0;
+    cursor: pointer;
+  }
+  .faq-item:last-child { border-bottom: 1px solid var(--line); }
+  .faq-q {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+  }
+  .faq-icon {
+    font-size: 24px;
+    color: var(--accent);
+    transition: transform 0.3s;
+    flex-shrink: 0;
+    margin-left: 24px;
+  }
+  .faq-item.open .faq-icon { transform: rotate(45deg); }
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, margin-top 0.3s;
+    color: var(--ink-mute);
+    font-size: 15px;
+    line-height: 1.65;
+  }
+  .faq-item.open .faq-a {
+    max-height: 300px;
+    margin-top: 16px;
+  }
+  /* === FINAL CTA === */
+  .final-cta {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 100px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .final-cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 30% 50%, rgba(255, 92, 61, 0.12) 0%, transparent 50%),
+      radial-gradient(circle at 70% 50%, rgba(14, 94, 94, 0.15) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .final-cta h2 {
+    color: var(--bg);
+    max-width: 700px;
+    margin: 0 auto 28px;
+    position: relative;
+    z-index: 1;
+  }
+  .final-cta h2 em { color: var(--accent); }
+  .final-cta p {
+    color: rgba(247, 245, 240, 0.7);
+    font-size: 18px;
+    max-width: 540px;
+    margin: 0 auto 40px;
+    position: relative;
+    z-index: 1;
+  }
+  .final-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    padding: 18px 36px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: transform 0.2s;
+  }
+  .btn-primary:hover { transform: translateY(-2px); }
+  .btn-secondary {
+    background: transparent;
+    color: var(--bg);
+    padding: 18px 36px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    border: 1px solid rgba(247, 245, 240, 0.3);
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--bg); }
+  /* === FOOTER === */
+  footer {
+    padding: 40px 0;
+    border-top: 1px solid var(--line);
+    text-align: center;
+    color: var(--ink-mute);
+    font-size: 13px;
+  }
+  /* === RESPONSIVE === */
+  @media (max-width: 900px) {
+    .container { padding: 0 20px; }
+    .hero { padding: 60px 0 40px; }
+    .hero-stats { grid-template-columns: 1fr; gap: 24px; }
+    .stat { border-right: none; border-bottom: 1px solid var(--line); padding: 0 0 24px; }
+    .stat:last-child { border-bottom: none; }
+    .problem-grid { grid-template-columns: 1fr; }
+    .total-loss { flex-direction: column; align-items: flex-start; }
+    .total-loss-note { text-align: left; }
+    .demo-wrap { grid-template-columns: 1fr; gap: 40px; }
+    .phone { max-width: 340px; margin: 0 auto; }
+    .features-grid { grid-template-columns: 1fr; }
+    .calc-wrap { grid-template-columns: 1fr; gap: 40px; }
+    .pricing-grid { grid-template-columns: 1fr; gap: 32px; }
+    .pricing-price-block { text-align: left; }
+    section { padding: 60px 0; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container nav-inner">
+    <div class="logo">
+      <span class="logo-dot"></span>
+      <span>AI-ассистент <em style="font-style:italic;color:var(--accent);font-family:'Fraunces',serif">для стоматологий</em></span>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-eyebrow">
+      <span class="pulse"></span>
+      Для стоматологий Алматы · Запуск за 2 недели
+    </div>
+    <h1>
+      Ваш ресепшен<br>
+      <em>не спит</em> и не<br>
+      теряет клиентов.
+    </h1>
+    <p class="hero-sub">
+      AI-ассистент отвечает в WhatsApp 24/7, ведёт диалог как живой администратор, сам уточняет жалобу, подбирает врача и записывает клиента прямо в вашу базу.
+    </p>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">24<span class="small">/7</span></div>
+        <div class="stat-label">Без выходных</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">5<span class="small">сек</span></div>
+        <div class="stat-label">Скорость ответа</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">−18<span class="small">%</span></div>
+        <div class="stat-label">Падение неявок</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section>
+  <div class="container">
+    <div class="section-tag">01 · Что вы теряете прямо сейчас</div>
+    <h2>Клиенты <em>не ждут</em>. Они уходят к соседям.</h2>
+    <p class="section-lead">
+      Стоматология теряет деньги не на лечении, а до него — на этапе записи. Четыре дыры, которые есть у каждой клиники.
+    </p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-num">·01</div>
+        <h3>Очередь у админа</h3>
+        <p>Когда приходят 5 сообщений подряд — администратор отвечает по одному. Четверо ждут 10–20 минут и уходят к конкурентам.</p>
+        <div class="problem-loss">~ 40% упущенных дневных заявок</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">·02</div>
+        <h3>Ночь и выходные</h3>
+        <p>Зубная боль не смотрит на часы. Человек пишет в 23:40, не получает ответа за 15 минут — и записывается в другую клинику.</p>
+        <div class="problem-loss">30–40% обращений вне часов работы</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">·03</div>
+        <h3>Неявки</h3>
+        <p>Админ не успевает обзванивать всех за день. Человек забывает или отказывается в последний момент — кресло простаивает час.</p>
+        <div class="problem-loss">20–25% записей не доходят</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">·04</div>
+        <h3>Спящая база</h3>
+        <p>Сотни клиентов, которые были полгода назад, никогда не возвращаются — потому что им никто не напомнил о повторной чистке.</p>
+        <div class="problem-loss">~ 300 тыс ₸ упущенной выручки в мес</div>
+      </div>
+    </div>
+    <div class="total-loss">
+      <div>
+        <div class="total-loss-label">Средняя потеря на клинику</div>
+        <div class="total-loss-num"><em>1,2 млн ₸</em> /мес</div>
+      </div>
+      <div class="total-loss-note">
+        Расчёт для клиники с 30 записями/день и средним чеком 20 000 ₸
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section class="demo-section">
+  <div class="container">
+    <div class="demo-wrap">
+      <div class="demo-info">
+        <div class="section-tag">02 · Живой диалог</div>
+        <h2>Это не бот <em>с кнопками</em>.</h2>
+        <p class="section-lead">
+          Запустите демо справа и посмотрите, как ассистент сам ведёт клиента от первого сообщения до подтверждённой записи в вашей базе.
+        </p>
+        <ul class="demo-features">
+          <li>
+            <span class="check">✓</span>
+            <span class="feat-text">Понимает жалобу <strong>живым языком</strong> — «зуб ноет», «откололся кусок», «нужна чистка»</span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span class="feat-text">Сам определяет <strong>нужного врача</strong> — терапевт, хирург, ортодонт, гигиенист</span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span class="feat-text">Видит реальное расписание и <strong>предлагает свободные слоты</strong></span>
+          </li>
+          <li>
+            <span class="check">✓</span>
+            <span class="feat-text">Создаёт запись в <strong>YCLIENTS, Dental4Windows или вашей системе</strong> автоматически</span>
+          </li>
+        </ul>
+        <div class="demo-cta-line">
+          <strong>Попробуйте сами →</strong> нажмите «Запустить демо» на телефоне и пройдите диалог как реальный клиент.
+        </div>
+      </div>
+
+      <div>
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="wa-header">
+              <div class="wa-avatar">АС</div>
+              <div>
+                <div class="wa-name">Стом-АРТ · Запись</div>
+                <div class="wa-status">в сети · отвечает мгновенно</div>
+              </div>
+            </div>
+            <div class="wa-chat" id="chat"></div>
+          </div>
+        </div>
+        <div class="demo-controls">
+          <button class="demo-btn primary" id="startDemo">▶ Запустить демо</button>
+          <button class="demo-btn" id="resetDemo">Заново</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section>
+  <div class="container">
+    <div class="section-tag">03 · Что получаете</div>
+    <h2>Пять функций, которые <em>заменяют ночную смену</em>.</h2>
+    <div class="features-grid">
+      <div class="feature">
+        <div class="feature-num">i.</div>
+        <h3>Отвечает всем сразу</h3>
+        <p>100 диалогов параллельно. Никто не ждёт в очереди — каждый клиент получает ответ за секунды.</p>
+        <div class="feature-metric">≈ +40% к конверсии в запись</div>
+      </div>
+      <div class="feature">
+        <div class="feature-num">ii.</div>
+        <h3>Работает 24/7</h3>
+        <p>Не болеет, не увольняется, не уходит на обед. Ночь, праздники, выходные — закрыто всё.</p>
+        <div class="feature-metric">+30–40% обращений вне часов</div>
+      </div>
+      <div class="feature">
+        <div class="feature-num">iii.</div>
+        <h3>Записывает сам</h3>
+        <p>Подключение к YCLIENTS, Dental4Windows и другим системам. Админу приходит готовый календарь.</p>
+        <div class="feature-metric">Интеграция за 3–5 дней</div>
+      </div>
+      <div class="feature">
+        <div class="feature-num">iv.</div>
+        <h3>Напоминает за день</h3>
+        <p>Подтверждает запись. При отказе сразу предлагает слот клиенту из листа ожидания.</p>
+        <div class="feature-metric">Неявки: 25% → 7–10%</div>
+      </div>
+      <div class="feature">
+        <div class="feature-num">v.</div>
+        <h3>Возвращает базу</h3>
+        <p>«Иван, полгода назад была чистка, пора повторить» — пишет сам, записывает сам.</p>
+        <div class="feature-metric">+200–400 тыс ₸/мес</div>
+      </div>
+      <div class="feature">
+        <div class="feature-num">vi.</div>
+        <h3>Передаёт сложное</h3>
+        <p>Если случай требует врача — корректно передаёт диалог администратору с готовым контекстом.</p>
+        <div class="feature-metric">100% безопасность для медицины</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CALCULATOR -->
+<section class="calc-section" id="calc">
+  <div class="container">
+    <div class="section-tag">04 · Калькулятор экономии</div>
+    <h2>Посчитайте <em>вашу выгоду</em>.</h2>
+    <p class="section-lead">
+      Двигайте ползунки под параметры своей клиники и увидите чистую экономию в месяц.
+    </p>
+    <div class="calc-wrap">
+      <div class="calc-inputs">
+        <div class="calc-input">
+          <label>Записей в день</label>
+          <div class="value"><span id="vRecords">30</span><span class="unit">записей</span></div>
+          <input type="range" min="10" max="80" value="30" class="calc-slider" id="sRecords">
+        </div>
+        <div class="calc-input">
+          <label>Средний чек</label>
+          <div class="value"><span id="vCheck">20</span><span class="unit">тыс ₸</span></div>
+          <input type="range" min="10" max="60" value="20" class="calc-slider" id="sCheck">
+        </div>
+        <div class="calc-input">
+          <label>Администраторов сейчас</label>
+          <div class="value"><span id="vAdmins">2</span><span class="unit">человека</span></div>
+          <input type="range" min="1" max="4" value="2" class="calc-slider" id="sAdmins">
+        </div>
+      </div>
+      <div class="calc-result">
+        <div class="calc-line loss">
+          <span>Упущенная выручка (ночь + очередь)</span>
+          <span id="rLost">−800 000 ₸</span>
+        </div>
+        <div class="calc-line loss">
+          <span>Потери от неявок</span>
+          <span id="rNoShow">−600 000 ₸</span>
+        </div>
+        <div class="calc-line">
+          <span>Текущий ФОТ администраторов</span>
+          <span id="rFot">560 000 ₸</span>
+        </div>
+        <div class="calc-line">
+          <span>Подписка на AI-ассистента</span>
+          <span style="color: var(--accent) !important">−120 000 ₸</span>
+        </div>
+        <div class="calc-savings">
+          <div class="calc-savings-label">Чистая выгода с AI</div>
+          <div class="calc-savings-value"><span id="rSavings">1 280 000</span> ₸<span class="calc-savings-period">/мес</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section>
+  <div class="container">
+    <div class="section-tag">05 · Условия пилота</div>
+    <h2>Сначала <em>докажем</em> на ваших клиентах. Потом подписка.</h2>
+    <p class="section-lead">
+      Никакого «купите и потом разберёмся». Платите за пилот, видите результат на своих данных, дальше решаете сами.
+    </p>
+    <div class="pricing-card">
+      <div class="pricing-grid">
+        <div>
+          <h3>Пилот · 2 недели</h3>
+          <p class="pricing-desc">
+            Подключаем агента к вашему WhatsApp и базе. Настраиваем под ваши услуги, цены и врачей. Замеряем результат.
+          </p>
+          <ul class="pricing-includes">
+            <li>Полная настройка под клинику и услуги</li>
+            <li>Интеграция с YCLIENTS / Dental4Windows / вашей системой</li>
+            <li>База знаний: цены, врачи, расписание, акции</li>
+            <li>Сценарии для 12 типичных жалоб</li>
+            <li>Отчёт по результатам: записи, конверсии, неявки</li>
+          </ul>
+        </div>
+        <div class="pricing-price-block">
+          <div class="pricing-price">150<span class="pricing-price-unit"> тыс ₸</span></div>
+          <div class="pricing-meta">единоразово за 2 недели</div>
+          <div class="pricing-guarantee">
+            <strong>Гарантия возврата</strong>
+            Если за пилот ассистент не принесёт минимум 10 новых записей — вернём 100% оплаты.
+          </div>
+        </div>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:40px;color:var(--ink-mute);font-size:14px;">
+      После пилота · Подписка <strong style="color: var(--ink)">80–150 тыс ₸/мес</strong> в зависимости от объёма обращений
+    </p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+  <div class="container">
+    <div class="section-tag">06 · Частые вопросы</div>
+    <h2>Что обычно <em>спрашивают</em> владельцы клиник.</h2>
+    <div style="margin-top: 48px;">
+      <div class="faq-item">
+        <div class="faq-q">А что, если он скажет глупость пациенту?<span class="faq-icon">+</span></div>
+        <div class="faq-a">
+          Агент не консультирует по лечению — это запрещено законом для не-врачей. Он только записывает: уточняет жалобу, подбирает врача и время. Любой вопрос про диагноз или цены процедур корректно передаёт администратору с полным контекстом диалога.
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">У нас Dental4Windows / самописная система — подойдёт?<span class="faq-icon">+</span></div>
+        <div class="faq-a">
+          Лучше всего интегрируется с YCLIENTS (есть открытое API). Для Dental4Windows, IDent и самописных систем делаем гибридный вариант: агент создаёт запись в Google Sheets / Notion, а админ за 5 секунд переносит её в основную систему. Это даже удобнее, чем кажется.
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Не отпугнёт ли клиентов разговор с ИИ?<span class="faq-icon">+</span></div>
+        <div class="faq-a">
+          Современные LLM-агенты пишут так, что клиенты не отличают от живого администратора. Если человек напрямую спрашивает «вы бот?» — агент честно отвечает: «Я цифровой помощник клиники, могу записать вас прямо сейчас». В 9 из 10 случаев человек продолжает диалог — потому что ему важна запись, а не природа собеседника.
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Как с защитой данных пациентов?<span class="faq-icon">+</span></div>
+        <div class="faq-a">
+          Все диалоги хранятся на серверах в Казахстане. Передача персональных данных шифруется. Согласие на обработку запрашивается в начале диалога автоматически. Соответствует требованиям Закона РК «О персональных данных».
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Сколько занимает запуск?<span class="faq-icon">+</span></div>
+        <div class="faq-a">
+          5–10 рабочих дней. Первые 2 дня — собираем данные о клинике (услуги, цены, врачи, расписание). 3–5 день — настраиваем агента под ваши сценарии. 6–7 день — тестируем на ваших сотрудниках. 8 день — запускаем на реальный WhatsApp.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta" id="cta">
+  <div class="container">
+    <h2>Хватит терять клиентов <em>между сообщениями</em>.</h2>
+    <p>
+      Если интересно — напишите мне в ответ в этот же чат. За 15 минут разберём вашу воронку записи и покажем, сколько именно вы теряете каждый месяц.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    AI-ассистент для клиник · Алматы · 2026
+  </div>
+</footer>
+
+<script>
+  // === WhatsApp Demo Simulator ===
+  const chat = document.getElementById('chat');
+  const startBtn = document.getElementById('startDemo');
+  const resetBtn = document.getElementById('resetDemo');
+
+  const script = [
+    { from: 'in', text: 'Здравствуйте! Зуб ноет, особенно когда холодное пью. Можно записаться?', delay: 800 },
+    { typing: true, delay: 1200 },
+    { from: 'out', text: 'Здравствуйте! Сочувствую, реакция на холодное чаще всего говорит о чувствительности или кариесе.', delay: 1500 },
+    { from: 'out', text: 'Уточню несколько моментов и сразу подберу время. Боль постоянная или только от холодного?', delay: 1200 },
+    { from: 'in', text: 'только от холодного, ночью не болит', delay: 1800 },
+    { typing: true, delay: 1000 },
+    { from: 'out', text: 'Понятно, похоже на чувствительность или начальный кариес. Запишу вас к терапевту.', delay: 1400 },
+    { from: 'out', text: 'Когда удобнее — сегодня вечером или завтра в первой половине дня?', delay: 1200 },
+    { from: 'in', text: 'давайте сегодня вечером', delay: 1500 },
+    { typing: true, delay: 1200 },
+    { from: 'out', text: 'Свободные слоты сегодня:\n· 17:30 — Айдана Мухаметкаримова\n· 18:15 — Бахыт Жакишева\n· 19:00 — Айдана Мухаметкаримова', delay: 1500 },
+    { from: 'in', text: '18:15 подойдёт', delay: 1500 },
+    { typing: true, delay: 1000 },
+    { booking: true, delay: 1200 },
+    { from: 'out', text: 'Записал вас. За 2 часа до приёма пришлю напоминание. Если что — пишите.', delay: 1300 },
+    { from: 'out', text: 'А пока совет: до приёма не пейте сильно холодное. Скоро будете в порядке 🙂', delay: 1200 }
+  ];
+
+  let running = false;
+
+  function timeStr() {
+    const d = new Date();
+    return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+
+  function addMsg(from, text) {
+    const m = document.createElement('div');
+    m.className = `msg ${from}`;
+    const tickHtml = from === 'out' ? '<span class="msg-tick">✓✓</span>' : '';
+    m.innerHTML = `${text.replace(/\n/g, '<br>')}<span class="msg-time">${timeStr()} ${tickHtml}</span>`;
+    chat.appendChild(m);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function addTyping() {
+    const t = document.createElement('div');
+    t.className = 'typing';
+    t.id = 'typing';
+    t.innerHTML = '<span></span><span></span><span></span>';
+    chat.appendChild(t);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('typing');
+    if (t) t.remove();
+  }
+
+  function addBookingBanner() {
+    const b = document.createElement('div');
+    b.className = 'booking-banner';
+    b.innerHTML = `
+      <div class="booking-banner-title">✓ Запись создана в YCLIENTS</div>
+      <div class="booking-banner-line">Сегодня, 18:15 · каб. 3</div>
+      <div class="booking-banner-line">Терапевт: Бахыт Жакишева</div>
+      <div class="booking-banner-line">Услуга: Консультация + диагностика</div>
+    `;
+    chat.appendChild(b);
+    chat.scrollTop = chat.scrollHeight;
+    setTimeout(() => b.classList.add('show'), 50);
+  }
+
+  function sleep(ms) {
+    return new Promise(r => setTimeout(r, ms));
+  }
+
+  async function runDemo() {
+    if (running) return;
+    running = true;
+    chat.innerHTML = '';
+    startBtn.disabled = true;
+    startBtn.textContent = 'Идёт диалог...';
+
+    for (const step of script) {
+      await sleep(step.delay);
+      if (step.typing) {
+        addTyping();
+      } else if (step.booking) {
+        removeTyping();
+        addBookingBanner();
+      } else {
+        removeTyping();
+        addMsg(step.from, step.text);
+      }
+    }
+
+    running = false;
+    startBtn.disabled = false;
+    startBtn.textContent = '▶ Запустить заново';
+  }
+
+  function resetDemo() {
+    chat.innerHTML = '<div style="text-align:center;color:var(--ink-mute);font-size:13px;padding:40px 20px;">Нажмите «Запустить демо», чтобы увидеть, как AI-ассистент записывает реального клиента →</div>';
+    running = false;
+    startBtn.disabled = false;
+    startBtn.textContent = '▶ Запустить демо';
+  }
+
+  startBtn.addEventListener('click', runDemo);
+  resetBtn.addEventListener('click', resetDemo);
+  resetDemo();
+
+  // === Calculator ===
+  const sRecords = document.getElementById('sRecords');
+  const sCheck = document.getElementById('sCheck');
+  const sAdmins = document.getElementById('sAdmins');
+  const vRecords = document.getElementById('vRecords');
+  const vCheck = document.getElementById('vCheck');
+  const vAdmins = document.getElementById('vAdmins');
+  const rLost = document.getElementById('rLost');
+  const rNoShow = document.getElementById('rNoShow');
+  const rFot = document.getElementById('rFot');
+  const rSavings = document.getElementById('rSavings');
+
+  function fmt(n) {
+    return Math.round(n).toLocaleString('ru-RU').replace(/,/g, ' ');
+  }
+
+  function calc() {
+    const records = +sRecords.value;
+    const check = +sCheck.value * 1000;
+    const admins = +sAdmins.value;
+
+    // Lost from unreachable nights + queue: ~35% of potential = records * 0.35 * workdays * check * coverage_gap
+    // Simplified: assume 30% of records could be added if 24/7 + parallel
+    const workdays = 26;
+    const lostRevenue = records * 0.30 * workdays * check;
+    const noShowLoss = records * 0.18 * workdays * check; // 18% drop from 25% to 7%
+    const fot = admins * 280000;
+    const subscription = 120000;
+
+    const savings = lostRevenue + noShowLoss + fot - subscription - (admins > 1 ? 280000 : 0); // one admin still needed
+
+    vRecords.textContent = records;
+    vCheck.textContent = +sCheck.value;
+    vAdmins.textContent = admins;
+    rLost.textContent = '−' + fmt(lostRevenue) + ' ₸';
+    rNoShow.textContent = '−' + fmt(noShowLoss) + ' ₸';
+    rFot.textContent = fmt(fot) + ' ₸';
+    rSavings.textContent = fmt(savings);
+  }
+
+  sRecords.addEventListener('input', calc);
+  sCheck.addEventListener('input', calc);
+  sAdmins.addEventListener('input', calc);
+  calc();
+
+  // === FAQ Accordion ===
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+</script>
+
+</body>
+</html>
